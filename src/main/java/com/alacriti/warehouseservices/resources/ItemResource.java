@@ -2,6 +2,7 @@ package com.alacriti.warehouseservices.resources;
 
 import java.util.List;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -15,7 +16,8 @@ import com.alacriti.warehouseservices.vo.ItemVo;
 import com.alacriti.warehouseservices.vo.PlaceholderVo;
 
 @Path("/")
-@Produces(MediaType.TEXT_XML)
+@Produces({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
+@Consumes({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
 public class ItemResource {
 	private ItemBo itemBo=new ItemBoImpl();
 	@GET

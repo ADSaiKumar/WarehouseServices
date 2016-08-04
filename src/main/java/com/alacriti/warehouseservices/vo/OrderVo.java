@@ -1,6 +1,6 @@
 package com.alacriti.warehouseservices.vo;
 
-import java.sql.Date;
+import java.util.Date;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -9,14 +9,24 @@ public class OrderVo {
 	private Date orderDate;
 	private int orderId;
 	private ItemVo item;
+	private int orderAmount;
+	public int getOrderAmount() {
+		return orderAmount;
+	}
+
+	public void setOrderAmount(int orderAmount) {
+		this.orderAmount = orderAmount;
+	}
+
 	public OrderVo(){
 		
 	}
 	
-	public OrderVo(Date orderDate, int orderId, ItemVo item) {
+	public OrderVo(Date orderDate, int orderId, ItemVo item,int orderAmount) {
 		this.orderDate = orderDate;
 		this.orderId = orderId;
 		this.item = item;
+		this.orderAmount=orderAmount;
 	}
 
 	public Date getOrderDate() {
@@ -36,6 +46,12 @@ public class OrderVo {
 	}
 	public void setItem(ItemVo item) {
 		this.item = item;
+	}
+
+	@Override
+	public String toString() {
+		return "OrderVo [orderDate=" + orderDate + ", orderId=" + orderId
+				+ ", item=" + item + ", orderAmount=" + orderAmount + "]";
 	}
 	
 }

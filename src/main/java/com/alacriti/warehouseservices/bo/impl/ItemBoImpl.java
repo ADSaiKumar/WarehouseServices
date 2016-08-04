@@ -45,4 +45,14 @@ public class ItemBoImpl implements ItemBo {
 		return itemDao.addToStock(connection,item);
 	}
 
+	public ItemVo removeStock(ItemVo item) {
+		itemDao.deleteStock(connection,item);
+		ItemVo storageItem=checkStorageOnly();
+		return storageItem;
+	}
+
+	private ItemVo checkStorageOnly() {
+		return itemDao.checkStorageOnly(connection);
+	}
+
 }

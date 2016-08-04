@@ -20,4 +20,6 @@ public interface ItemBo {
 
 	public int addToStock(ItemVo item);
 
+	public ItemVo removeStock(ItemVo item);
+
 }

@@ -102,4 +102,26 @@ public class ItemDaoImpl implements ItemDao {
 		int i=DataBaseAgent.updateData(connection, queryBuilder.toString().trim());
 		return i;
 	}
+
+	public void deleteStock(Connection connection, ItemVo item) {
+		StringBuilder queryBuilder=new StringBuilder();
+		queryBuilder.append("delete from warehouse_stock_tbl ")
+			.append("where item_id=")
+			.append(item.getItemId());
+		LoggerObject.infoLog(queryBuilder.toString());
+		int i=DataBaseAgent.updateData(connection, queryBuilder.toString().trim());
+	}
+
+	public ItemVo checkStorageOnly(Connection connection) {
+		String query="select item_id,storage from warehouse_stock_tbl where ph_id is null";
+		ResultSet resultSet=DataBaseAgent.getData(connection, query);
+		try {
+			if(resultSet.next()){
+				return new ItemVo(resultSet.getInt("item_id"),"",resultSet.getInt("storage"));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 }

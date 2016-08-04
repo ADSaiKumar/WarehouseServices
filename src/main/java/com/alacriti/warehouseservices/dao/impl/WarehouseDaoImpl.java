@@ -18,7 +18,7 @@ import com.alacriti.warehouseservices.vo.PlaceholderVo;
 public class WarehouseDaoImpl implements WarehouseDao{
 	//private Logger logger=Logger.getLogger(WarehouseDaoImpl.class);
 	private Statement statement;
-	public ResultSet getDetails(Connection connection) {
+	public List<FloorVo> getDetails(Connection connection) {
 		Map<Integer,FloorVo> warehouse=new HashMap<Integer,FloorVo>();
 		StringBuilder detailsQuery=new StringBuilder();
 		detailsQuery.append("select floor_id,floor_name,a.ph_id,d.item_id,item_name,stock,capacity,storage from ")
@@ -26,7 +26,26 @@ public class WarehouseDaoImpl implements WarehouseDao{
 			.append("warehouse_stock_tbl b on b.ph_id=a.ph_id left outer join ")
 			.append("warehouse_floor_tbl c on c.floor_id=a.floor_no left outer join ")
 			.append("warehouse_item_tbl d on d.item_id=b.item_id");
-		return DataBaseAgent.getData(connection,detailsQuery.toString().trim());
+		ResultSet resultSet=DataBaseAgent.getData(connection,detailsQuery.toString().trim());
+			int floorId;
+			try {
+				while(resultSet.next()){
+					floorId=resultSet.getInt("floor_id");
+					ItemVo item=new ItemVo(resultSet.getInt("item_id"),resultSet.getString("item_name"),(resultSet.getInt("stock")+resultSet.getInt("storage")));
+					PlaceholderVo placeholder=new PlaceholderVo(item,resultSet.getString("ph_id"),resultSet.getInt("stock"),resultSet.getInt("capacity"));
+					if(warehouse.containsKey(floorId)){
+						warehouse.get(floorId).addPlaceholder(placeholder);
+					}
+					else{
+						warehouse.put(floorId, new FloorVo(floorId,resultSet.getString("floor_name"),new ArrayList<PlaceholderVo>()));
+						warehouse.get(floorId).addPlaceholder(placeholder);
+					}
+				}
+			} catch (SQLException e) {
+				LoggerObject.errorLog(e.getStackTrace());
+			}
+			LoggerObject.infoLog(warehouse.values());
+			return new ArrayList<FloorVo>(warehouse.values());
 	}
 	public List<PlaceholderVo> getDetails(Connection connection, int floorId) {
 		List<PlaceholderVo> placehlders=new ArrayList<PlaceholderVo>();

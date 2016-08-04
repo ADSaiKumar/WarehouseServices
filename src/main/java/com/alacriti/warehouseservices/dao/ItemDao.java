@@ -21,4 +21,8 @@ public interface ItemDao {
 
 	public int addToStock(Connection connection,ItemVo item);
 
+	public void deleteStock(Connection connection, ItemVo item);
+
+	public ItemVo checkStorageOnly(Connection connection);
+
 }

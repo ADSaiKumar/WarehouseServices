@@ -31,31 +31,7 @@ public class WarehouseBoImpl implements WarehouseBo{
 		itemBo=new ItemBoImpl();
 	}
 	public List<FloorVo> getDetails() {
-		
-		Map<Integer,FloorVo> warehouse=new HashMap<Integer,FloorVo>();
-		ResultSet resultSet=warehouseDao.getDetails(connection);
-			int floorId;
-			try {
-				while(resultSet.next()){
-					floorId=resultSet.getInt("floor_id");
-					ItemVo item=new ItemVo(resultSet.getInt("item_id"),resultSet.getString("item_name"),(resultSet.getInt("stock")+resultSet.getInt("storage")));
-					logger.info(item);
-					PlaceholderVo placeholder=new PlaceholderVo(item,resultSet.getString("ph_id"),resultSet.getInt("stock"),resultSet.getInt("capacity"));
-					logger.info(placeholder);
-					if(warehouse.containsKey(floorId)){
-						warehouse.get(floorId).addPlaceholder(placeholder);
-						logger.info(warehouse.get(floorId));
-					}
-					else{
-						warehouse.put(floorId, new FloorVo(floorId,resultSet.getString("floor_name"),new ArrayList<PlaceholderVo>()));
-						warehouse.get(floorId).addPlaceholder(placeholder);
-					}
-				}
-			} catch (SQLException e) {
-				LoggerObject.errorLog(e.getStackTrace());
-			}
-			LoggerObject.infoLog(warehouse.values());
-			return new ArrayList<FloorVo>(warehouse.values());
+		return warehouseDao.getDetails(connection);
 	}
 
 	public FloorVo getDetails(int floorId) {
@@ -107,22 +83,30 @@ public class WarehouseBoImpl implements WarehouseBo{
 			int checkOutStock=item.getQuantity();
 			int capacity=placeholder.getCapacity();
 			if(checkOutStock<=availableStock){
-				if(totalStock==availableStock){
-					availableStock-=checkOutStock;
-					placeholder.getItem().setQuantity(availableStock);
-					placeholder.setStock(availableStock);
+				int storage=totalStock-availableStock;
+				availableStock-=checkOutStock;
+				int newStock=availableStock+storage;
+				placeholder.getItem().setQuantity(newStock);
+				if(newStock>capacity){
+					placeholder.setStock(capacity);
 				}else{
-					int storage=totalStock-availableStock;
-					availableStock-=checkOutStock;
-					int newStock=availableStock+storage;
-					placeholder.getItem().setQuantity(newStock);
-					if(newStock>capacity){
-						placeholder.setStock(capacity);
-					}else{
-						placeholder.setStock(newStock);
-					}
+					placeholder.setStock(newStock);
 				}
-			int i=itemBo.updateStock(placeholder);
+				if(newStock==0){
+					ItemVo newItem=itemBo.removeStock(item);
+					if(newItem!=null){
+						newStock=newItem.getQuantity();
+						if(newStock>capacity){
+							placeholder.setStock(capacity);
+						}else{
+							placeholder.setStock(newStock);
+						}
+						placeholder.setItem(newItem);
+						int i=itemBo.updateStock(placeholder);
+					}
+				}else{
+					int i=itemBo.updateStock(placeholder);
+				}
 			return itemBo.getItem(item.getItemId());
 			}else{
 				//return Extra Exception
@@ -130,7 +114,7 @@ public class WarehouseBoImpl implements WarehouseBo{
 		}else{
 			//return Item Not Available Exception
 		}
-		return null;
+		return placeholder;
 	}
 
 }

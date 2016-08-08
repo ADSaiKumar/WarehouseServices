@@ -13,6 +13,7 @@ import javax.ws.rs.core.MediaType;
 
 import com.alacriti.warehouseservices.bo.WarehouseBo;
 import com.alacriti.warehouseservices.bo.impl.WarehouseBoImpl;
+import com.alacriti.warehouseservices.delegates.UserDelegate;
 import com.alacriti.warehouseservices.vo.FloorVo;
 import com.alacriti.warehouseservices.vo.ItemVo;
 import com.alacriti.warehouseservices.vo.PlaceholderVo;
@@ -22,7 +23,6 @@ import com.alacriti.warehouseservices.vo.PlaceholderVo;
 @Consumes({MediaType.APPLICATION_XML,MediaType.APPLICATION_JSON})
 public class WarehouseResource {
 	public WarehouseBo warehouseBo=new WarehouseBoImpl();
-	
 	@GET
 	public List<FloorVo> getService() {
 		return warehouseBo.getDetails();

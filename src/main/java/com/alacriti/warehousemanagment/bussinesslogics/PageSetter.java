@@ -32,11 +32,11 @@ public class PageSetter {
 	public PageSetter(){
 		configuration.setClassForTemplateLoading(ViewResource.class, "/templetes");
 		classes=new String[]{"","","","",""};
-		links=new String[]{"http://localhost:8080/WarehouseServices/manager/dashboard",
-				"http://localhost:8080/WarehouseServices/manager/addstock",
-				"http://localhost:8080/WarehouseServices/manager/checkoutstock",
-				"http://localhost:8080/WarehouseServices/manager/search",
-				"http://localhost:8080/WarehouseServices/manager/orders"};
+		links=new String[]{"dashboard",
+				"addstock",
+				"checkoutstock",
+				"search",
+				"orders"};
 	}
 	public String templateLoader(int activeClass,String templateFile,Map<?,?> dataModel){
 		writer=new StringWriter();

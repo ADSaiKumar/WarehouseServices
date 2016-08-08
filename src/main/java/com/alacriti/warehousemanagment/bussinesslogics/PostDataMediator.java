@@ -68,5 +68,22 @@ public class PostDataMediator {
 		dataModel.put("orders",orderDetails);
 		return pageSetter.getRawTempleteString("orderstable.ftl", dataModel);
 	}
+	public String addItemToList(ItemVo item) {
+		Client client=ClientBuilder.newClient();
+		List<ItemVo> response=client.target("http://localhost:8080/WarehouseServices/services/warehouse/items")
+				.request()
+				.post(Entity.xml(item))
+				.readEntity(new GenericType<List<ItemVo>>(){});
+		LoggerObject.infoLog("\n New "+response);
+		String data=null;
+		try {
+			Map<String,List<ItemVo>> dataModel = new HashMap<String,List<ItemVo>>();
+			dataModel.put("items",response);
+			data=pageSetter.getRawTempleteString("itemslist.ftl", dataModel);
+			} catch (Exception e){
+				LoggerObject.errorLog(e);
+			}
+		return data;
+	}
 
 }

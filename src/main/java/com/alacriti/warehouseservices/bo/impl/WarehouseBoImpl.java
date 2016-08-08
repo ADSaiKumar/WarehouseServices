@@ -31,7 +31,9 @@ public class WarehouseBoImpl implements WarehouseBo{
 		itemBo=new ItemBoImpl();
 	}
 	public List<FloorVo> getDetails() {
-		return warehouseDao.getDetails(connection);
+		List<FloorVo> warehouse = warehouseDao.getDetails(connection);
+	
+		return warehouse;
 	}
 
 	public FloorVo getDetails(int floorId) {
@@ -39,11 +41,13 @@ public class WarehouseBoImpl implements WarehouseBo{
 		floor.setFloorId(floorId);
 		List<PlaceholderVo> placeholders=warehouseDao.getDetails(connection,floorId);
 		floor.setPlaceholders(placeholders);
+	
 		return floor;
 	}
 
 	public PlaceholderVo addStock(ItemVo item) {
 		PlaceholderVo placeholder=itemBo.getItem(item.getItemId());
+		PlaceholderVo newPlaceholder=new PlaceholderVo();
 		if(placeholder!=null){
 			int stock=placeholder.getItem().getQuantity()+item.getQuantity();
 			int capacity=placeholder.getCapacity();
@@ -69,7 +73,8 @@ public class WarehouseBoImpl implements WarehouseBo{
 				int i=itemBo.addToStock(item);
 			}
 		}		
-		return itemBo.getItem(item.getItemId());
+		newPlaceholder=itemBo.getItem(item.getItemId());
+		return newPlaceholder;
 	}
 
 	private PlaceholderVo getAvailability() {
@@ -77,6 +82,7 @@ public class WarehouseBoImpl implements WarehouseBo{
 	}
 	public PlaceholderVo checkOutItem(ItemVo item) {
 		PlaceholderVo placeholder=itemBo.getItem(item.getItemId());
+		PlaceholderVo placeholde2=new PlaceholderVo();
 		if(placeholder!=null){
 			int totalStock=placeholder.getItem().getQuantity();
 			int availableStock=placeholder.getStock();
@@ -107,13 +113,14 @@ public class WarehouseBoImpl implements WarehouseBo{
 				}else{
 					int i=itemBo.updateStock(placeholder);
 				}
-			return itemBo.getItem(item.getItemId());
+			placeholde2= itemBo.getItem(item.getItemId());
 			}else{
 				//return Extra Exception
 			}
 		}else{
 			//return Item Not Available Exception
 		}
+		
 		return placeholder;
 	}
 

@@ -1,6 +1,7 @@
 <div id="add-stock" class="col s12">
-				<form method="POST" action="post/additem">
+				<form method="POST" action="post/addstock">
 				<section class="row">
+						<section id="select-container">
 						<div class="input-field col s6 offset-s1">
 						    <select id="itemselect" name="itemId">
 						    	<#list items as item>
@@ -9,11 +10,21 @@
 						    </select>
 						    <label>Select Item Name</label>
 						  </div>
+						  </section>
 						  <a class='btn col s2 offset-s1 modal-trigger' href='#items-list' >Add New Item</a>
 						  <div id="items-list" class="modal">
 						    <div class="modal-content">
 						      <h4>Add New Item</h4>
-						      <p>A bunch of text</p>
+					    			<section class="row">
+					    			<div class="input-field col s10 offset-s1">
+					    					<i class="material-icons prefix">playlist_add</i>
+											<input id="newItem" type="text" class="validate">
+											<label for="text">Enter Item Name</label>
+								    </div>
+								    <div class="modal-footer">
+								      <a class=" modal-action modal-close waves-effect waves-green btn-flat" id="addNewItem">Agree</a>
+								    </div>
+					    		</section>
 						    </div>
 						  </div>
 				</section>

@@ -64,6 +64,30 @@ $(document).ready(function(){
     		});
     	}
     });
+    $('#addNewItem').click(function(){
+    	var item=$('#newItem').val();
+    	var xmlData="<itemVo><itemName>"+item+"</itemName></itemVo>";
+    	$.ajax({
+		    url: "http://localhost:8080/WarehouseServices/manager/post/item",
+		    data: xmlData, 
+		    type: 'POST',
+		    contentType: "application/xml",
+		    dataType:"html",
+		    success : function (response){  
+		        console.log(response);
+		        var section=$('#select-container');
+		        section.html(response);
+		        $('select').material_select();
+		        return true;
+		    },
+		    error : function (xhr, ajaxOptions, thrownError){  
+		        alert(xhr.status);          
+		        alert(thrownError);
+		        return false;
+		    } 
+		});
+    });
+    
 });
 function allowDrop(ev) {
     ev.preventDefault();

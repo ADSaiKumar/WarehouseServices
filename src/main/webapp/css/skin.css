@@ -56,3 +56,6 @@ p{
 #itemselect{
 	display: none;
 }
+#register-form .row{
+	margin-bottom:0px !important;
+}

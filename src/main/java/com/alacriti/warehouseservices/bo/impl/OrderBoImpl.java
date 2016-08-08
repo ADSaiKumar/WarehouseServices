@@ -1,6 +1,7 @@
 package com.alacriti.warehouseservices.bo.impl;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,18 +35,19 @@ public class OrderBoImpl implements OrderBo {
 				}
 			}
 		}
+		
 		return orders;
 	}
 	public List<OrderVo> setOrder(List<OrderVo> orderSummary) {
 		List<OrderVo> orders;
 		if(orderSummary.size()<=5){
 			orders=orderDao.setOrder(connection,orderSummary);
-			return orders;
 		}
 		else{
 			//Too many orders error
+			orders=null;
 		}
-		return null;
+		return orders;
 	}
 
 }

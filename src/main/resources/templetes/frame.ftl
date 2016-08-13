@@ -12,11 +12,17 @@
 		<script type="text/javascript" src="/WarehouseServices/js/mind.js"></script>
 	</head>
 	<body>
-		<div class="row">
-				<section class="col s3">
-					<h3 id="userName">${userName}</h3>
+	<div class="z-depth-5 row blue-grey darken-4 white-text no-bottom">
+				<section class="col s6">
+					<h3 class="top-space">Warehouse Management</h3>
 				</section>
-			    <div class="col s9">
+				<section class="col s2 offset-s4">
+					<p class="username">${username}</p>
+					<a href="logout"><p class="username">Logout</p></a>
+				</section>
+	</div>
+		<div class="row" id="nav-bar">
+				<div class="col s10 offset-s1">
 			      <a href="${dLink}"><section class="col s2 nav-tab ${dClass}"><h5>Dashboard</h5></section></a>
 			      <a href="${aLink}"><section class="col s2 nav-tab ${aClass}"><h5>Add Stock</h5></section></a>
 			      <a href="${cLink}"><section class="col s2 nav-tab ${cClass}"><h5>Check Out</h5></section></a>

@@ -13,6 +13,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.alacriti.warehousemanagment.dataobjects.ItemObject;
+import com.alacriti.warehousemanagment.delegates.ServiceRequestFilter;
 import com.alacriti.warehouseservices.vo.ItemVo;
 import com.alacriti.warehouseservices.vo.LoggerObject;
 import com.alacriti.warehouseservices.vo.OrderVo;
@@ -28,6 +29,7 @@ public class PostDataMediator {
 		LoggerObject.infoLog(item);
 		LoggerObject.infoLog(Entity.xml(item).toString());
 		Client client=ClientBuilder.newClient();
+		client.register(new ServiceRequestFilter());
 		Response response=client.target("http://localhost:8080/WarehouseServices/services/warehouse")
 				.request()
 				.post(Entity.xml(item));
@@ -37,7 +39,10 @@ public class PostDataMediator {
 		items.add(item2);
 		Map<String,List<ItemObject>> dataModel=new HashMap<String,List<ItemObject>>();
 		dataModel.put("items",items);
-		return pageSetter.getRawTempleteString("searchresults.ftl", dataModel);
+		Map dataModel2=new HashMap();
+		String table=pageSetter.getRawTempleteString("item.ftl", dataModel);
+		dataModel2.put("table",table);
+		return pageSetter.getRawTempleteString("successresult.ftl", dataModel2);
 	}
 	public String removeStockFromWarehouse(int itemId, int itemQuantity) {
 		ItemVo item=new ItemVo();
@@ -45,19 +50,33 @@ public class PostDataMediator {
 		item.setItemName("");
 		item.setQuantity(itemQuantity);
 		Client client=ClientBuilder.newClient();
+		client.register(new ServiceRequestFilter());
 		Response response=client.target("http://localhost:8080/WarehouseServices/services/warehouse")
 				.request()
 				.put(Entity.xml(item));
-		PlaceholderVo placeholder=response.readEntity(PlaceholderVo.class);
-		ItemObject item2=ItemObject.getItem(placeholder);
-		List<ItemObject> items=new ArrayList<ItemObject>();
-		items.add(item2);
-		Map<String,List<ItemObject>> dataModel=new HashMap<String,List<ItemObject>>();
-		dataModel.put("items",items);
-		return pageSetter.getRawTempleteString("searchresults.ftl", dataModel);
+		if(response.getStatus()==Response.Status.OK.getStatusCode()){
+			PlaceholderVo placeholder=response.readEntity(PlaceholderVo.class);
+			ItemObject item2=ItemObject.getItem(placeholder);
+			List<ItemObject> items=new ArrayList<ItemObject>();
+			items.add(item2);
+			Map<String,List<ItemObject>> dataModel=new HashMap<String,List<ItemObject>>();
+			dataModel.put("items",items);
+			Map dataModel2=new HashMap();
+			String table=pageSetter.getRawTempleteString("item.ftl", dataModel);
+			dataModel2.put("table",table);
+			return pageSetter.getRawTempleteString("successresult.ftl", dataModel2);
+		}else if(response.getStatus()==Response.Status.METHOD_NOT_ALLOWED.getStatusCode()){
+			String message=response.readEntity(String.class);
+			Map dataModel=new HashMap();
+			dataModel.put("message",message);
+			return pageSetter.getRawTempleteString("notallowed.ftl", dataModel);
+		}else{
+			return null;
+		}
 	}
 	public String placeOrders(List<OrderVo> orderSummary) {
 		Client client=ClientBuilder.newClient();
+		client.register(new ServiceRequestFilter());
 		Response response=client.target("http://localhost:8080/WarehouseServices/services/warehouse/orders")
 				.request()
 				.post(Entity.json(orderSummary));
@@ -66,10 +85,14 @@ public class PostDataMediator {
 		LoggerObject.infoLog(orderDetails.toString());
 		Map<String,List<OrderVo>> dataModel=new HashMap<String,List<OrderVo>>();
 		dataModel.put("orders",orderDetails);
-		return pageSetter.getRawTempleteString("orderstable.ftl", dataModel);
+		Map dataModel2=new HashMap();
+		String table=pageSetter.getRawTempleteString("order.ftl", dataModel);
+		dataModel2.put("table",table);
+		return pageSetter.getRawTempleteString("successresult.ftl", dataModel2);
 	}
 	public String addItemToList(ItemVo item) {
 		Client client=ClientBuilder.newClient();
+		client.register(new ServiceRequestFilter());
 		List<ItemVo> response=client.target("http://localhost:8080/WarehouseServices/services/warehouse/items")
 				.request()
 				.post(Entity.xml(item))

@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.alacriti.warehousemanagment.delegates.ManagerSecurityFilter;
 import com.alacriti.warehousemanagment.resources.ViewResource;
 import com.alacriti.warehouseservices.vo.LoggerObject;
 
@@ -57,7 +58,7 @@ public class PageSetter {
 		Map<String,String> dataModel = new HashMap<String,String>();
 		classes[activeClass]="active-page";
 		links[activeClass]="#";
-		dataModel.put("userName","SaiKUmar");
+		dataModel.put("username",ManagerSecurityFilter.sessionUser.getUserName());
 		dataModel.put("dClass",classes[0]);
 		dataModel.put("aClass",classes[1]);
 		dataModel.put("cClass",classes[2]);

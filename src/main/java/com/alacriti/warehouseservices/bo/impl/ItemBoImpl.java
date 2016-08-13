@@ -49,19 +49,21 @@ public class ItemBoImpl implements ItemBo {
 
 	public int addToStock(ItemVo item) {
 		int result=itemDao.addToStock(connection,item);
-		List<ItemVo> items=itemDao.enlisItem(connection);
 		return result;
 	}
 
 	public ItemVo removeStock(ItemVo item) {
 		itemDao.deleteStock(connection,item);
 		ItemVo storageItem=checkStorageOnly();
-		List<ItemVo> items=itemDao.enlisItem(connection);
 		return storageItem;
 	}
 
 	private ItemVo checkStorageOnly() {
 		return itemDao.checkStorageOnly(connection);
+	}
+
+	public void updateStockData(ItemVo item) {
+		itemDao.checkStorageOnly(connection,item);
 	}
 
 }

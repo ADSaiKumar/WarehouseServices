@@ -15,7 +15,7 @@
 			        <#list orders as order>
 			          <tr>
 			          	<td>
-			          		<p>
+			          		<p class="no-top no-bottom">
 						      <input type="checkbox" id="row${order.item.itemId}" value="${order.item.itemId}" />
 						      <label for="row${order.item.itemId}"></label>
 						    </p>

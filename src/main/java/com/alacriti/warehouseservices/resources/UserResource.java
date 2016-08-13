@@ -35,7 +35,6 @@ public class UserResource {
 	@POST
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	public Response gLoginService(@FormParam("tokenId") String tokenId){
-		LoggerObject.infoLog(tokenId);
 		Response response=userDelegate.gValidate(tokenId);
 		return response;
 	}

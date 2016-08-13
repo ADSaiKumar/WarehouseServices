@@ -1,6 +1,7 @@
 package com.alacriti.warehouseservices.dao.impl;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -10,9 +11,11 @@ import java.util.List;
 import java.util.Map;
 
 import com.alacriti.warehouseservices.dao.WarehouseDao;
+import com.alacriti.warehouseservices.vo.CheckOutVo;
 import com.alacriti.warehouseservices.vo.FloorVo;
 import com.alacriti.warehouseservices.vo.ItemVo;
 import com.alacriti.warehouseservices.vo.LoggerObject;
+import com.alacriti.warehouseservices.vo.PageVo;
 import com.alacriti.warehouseservices.vo.PlaceholderVo;
 
 public class WarehouseDaoImpl implements WarehouseDao{
@@ -84,6 +87,178 @@ public class WarehouseDaoImpl implements WarehouseDao{
 		}catch(NullPointerException e){
 			LoggerObject.errorLog(e.getStackTrace());
 		}		
+		return null;
+	}
+	public List<ItemVo> getStorageDetails(Connection connection) {
+		String query="select a.item_id,storage,item_name from warehouse_stock_tbl a join warehouse_item_tbl b on a.item_id=b.item_id where storage>0";
+		ResultSet resultSet=DataBaseAgent.getData(connection, query);
+		try {
+			List<ItemVo> items=new ArrayList<ItemVo>();
+			while(resultSet.next()){
+			items.add(new ItemVo(resultSet.getInt("item_id"),resultSet.getString("item_name"),resultSet.getInt("storage")));
+			}
+			return items;
+		} catch (SQLException e) {
+			LoggerObject.errorLog(e);
+		}catch(NullPointerException e){
+			LoggerObject.errorLog(e.getStackTrace());
+		}		
+		return null;
+	}
+	public int getUniquePageId(Connection connection) {
+		String query="select max(unique_id) as id from warehouse_pagination_tbl";
+		ResultSet resultSet=DataBaseAgent.getData(connection, query);
+		try {
+			resultSet.next();
+			if(resultSet.getInt("id")!=0){
+				return resultSet.getInt("id");
+			}
+		} catch (SQLException e) {
+			LoggerObject.errorLog(e);
+		}catch(NullPointerException e){
+			LoggerObject.errorLog(e);
+		}
+		return 1;
+	}
+	public int loadPaginationTable(Connection connection, PageVo page,
+			List<PlaceholderVo> placeholders) {
+		StringBuilder queryBuilder=new StringBuilder();
+		queryBuilder.append("insert into warehouse_pagination_tbl(unique_id,record_id,item_name,placeholder_id,stock,storage) ")
+					.append("values(")
+					.append(page.getUniqueId())
+					.append(",?,?,?,?,?)");
+		int recordId=0;
+		try {
+			PreparedStatement statement=connection.prepareStatement(queryBuilder.toString().trim());
+			for(PlaceholderVo placeholder:placeholders){
+				int storage=placeholder.getItem().getQuantity()-placeholder.getStock();
+				statement.setInt(1,recordId);
+				statement.setString(2,placeholder.getItem().getItemName());
+				statement.setString(3,placeholder.getPlaceholderId());
+				statement.setInt(4,placeholder.getStock());
+				statement.setInt(5,storage);
+				statement.execute();
+				recordId++;
+			}
+		} catch (SQLException e) {
+			LoggerObject.errorLog(e);
+		}
+		return recordId;
+	}
+	public PageVo loadPage(Connection connection, PageVo page) {
+		List<PlaceholderVo> placeholders=new ArrayList<PlaceholderVo>();
+		int uniqueId=page.getUniqueId();
+		int offset=page.getOffset();
+		int limit=page.getLimit();
+		StringBuilder queryBuilder=new StringBuilder();
+		queryBuilder.append("select item_name,placeholder_id,stock,storage from warehouse_pagination_tbl where unique_id=")
+					.append(uniqueId)
+					.append(" and record_id>=")
+					.append(offset)
+					.append(" order by record_id limit ")
+					.append(limit);
+		String query=queryBuilder.toString().trim();
+		ResultSet resultSet=DataBaseAgent.getData(connection, query);
+		try {
+			while(resultSet.next()){
+				PlaceholderVo placeholder=new PlaceholderVo();
+				placeholder.setPlaceholderId(resultSet.getString("placeholder_id"));
+				placeholder.setStock(resultSet.getInt("stock"));
+				ItemVo item=new ItemVo();
+				item.setItemName(resultSet.getString("item_name"));
+				item.setQuantity(resultSet.getInt("stock")+resultSet.getInt("storage"));
+				placeholder.setItem(item);
+				placeholders.add(placeholder);
+			}
+			resultSet.close();
+		} catch (SQLException e) {
+			LoggerObject.errorLog(e);
+		}
+		page.setPlaceholders(placeholders);
+		String sql="select count(unique_id) as count from warehouse_pagination_tbl where unique_id="+page.getUniqueId()+";";
+		resultSet=DataBaseAgent.getData(connection, sql);
+		try {
+			resultSet.next();
+			int records=resultSet.getInt("count");
+			LoggerObject.infoLog(records);
+			int totalpages=0;
+			if(records==0){
+				totalpages=0;
+			}else if(records/limit == 0){
+				totalpages=1;
+			}else{
+				if(records%limit==0){
+					totalpages=records/limit;
+					LoggerObject.infoLog(totalpages);
+				}else{
+					totalpages=(records/limit)+1;
+					LoggerObject.infoLog(totalpages);
+				}
+			}
+			page.setTotalPages(totalpages);
+			page.setPageNo(page.getOffset()/page.getLimit()+1);
+		} catch (SQLException e) {
+			LoggerObject.errorLog(e);
+		}
+		return page;
+	}
+	public List<CheckOutVo> getCheckOutDetails(Connection connection) {
+		String sql="select check_id,checkout_date,item_name,quantity from warehouse_checkout_tbl a join warehouse_item_tbl b on a.item_id=b.item_id";
+		List<CheckOutVo> list=new ArrayList<CheckOutVo>();
+		ResultSet resultSet=DataBaseAgent.getData(connection, sql);
+		try {
+			while(resultSet.next()){
+				CheckOutVo checkOut=new CheckOutVo();
+				checkOut.setCheckOutId(resultSet.getInt("check_id"));
+				checkOut.setCheckOutDate(resultSet.getDate("checkout_date"));
+				checkOut.setItem(new ItemVo(0,resultSet.getString("item_name"),resultSet.getInt("quantity")));
+				list.add(checkOut);
+			}
+		} catch (SQLException e) {
+			LoggerObject.errorLog(e);
+		}
+		return list;
+	}
+	public int getTmpUniquePageId(Connection connection) {
+		String query="select max(unique_id) as id from warehouse_tmp_checkout_tbl";
+		ResultSet resultSet=DataBaseAgent.getData(connection, query);
+		try {
+			resultSet.next();
+			if(resultSet.getInt("id")!=0){
+				return resultSet.getInt("id");
+			}
+		} catch (SQLException e) {
+			LoggerObject.errorLog(e);
+		}catch(NullPointerException e){
+			LoggerObject.errorLog(e);
+		}
+		return 1;
+	}
+	public int loadTmpCheckOuts(Connection connection, PageVo page,
+			List<CheckOutVo> checkouts) {
+		StringBuilder queryBuilder=new StringBuilder();
+		queryBuilder.append("insert into warehouse_pagination_tbl(unique_id,record_id,check_id,checkout_date,item_name,quantity) ")
+					.append("values(")
+					.append(page.getUniqueId())
+					.append(",?,?,?,?,?)");
+		int recordId=0;
+		try {
+			PreparedStatement statement=connection.prepareStatement(queryBuilder.toString().trim());
+			for(CheckOutVo checkOut:checkouts){
+				statement.setInt(1,recordId);
+				statement.setInt(2,checkOut.getCheckOutId());
+				statement.setDate(3,checkOut.getCheckOutDate());
+				statement.setString(4,checkOut.getItem().getItemName());
+				statement.setInt(5,checkOut.getItem().getQuantity());
+				statement.execute();
+				recordId++;
+			}
+		} catch (SQLException e) {
+			LoggerObject.errorLog(e);
+		}
+		return recordId;
+	}
+	public PageVo loadPageCheckOuts(Connection connection, PageVo page) {
 		return null;
 	}
 

@@ -25,4 +25,6 @@ public interface ItemDao {
 
 	public ItemVo checkStorageOnly(Connection connection);
 
+	public void checkStorageOnly(Connection connection, ItemVo item);
+
 }

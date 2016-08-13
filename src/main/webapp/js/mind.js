@@ -1,5 +1,8 @@
 $(document).ready(function(){
 	$('.dp').height($('.dp').width());
+	 var width=$('.placeholder-layout').parent().width();
+	    $('.placeholder-layout').width((width/10)-15);
+	    $('.placeholder-layout').height((width/10)-10);
 	$('.collapsible').collapsible({
       accordion : false 
     });
@@ -7,9 +10,52 @@ $(document).ready(function(){
     $('.fixed-action-btn').closeFAB();
     $('.modal-trigger').leanModal();
     $('select').material_select();
-    $('#itemselect').change(function(sel){
-    	var data=$(this[value=$(this).val()-1]).text();
-    	$('#itemname').text(data);
+    $('.select-wrapper').find('li').addClass("blue-grey darken-4");
+    $('.select-wrapper').find('span').addClass("white-text");
+    $('.btn').hover(function(){
+    	$(this).removeClass('white');
+    	$(this).addClass("blue-grey darken-4");
+    	$(this).addClass("white-text");
+    	$(this).removeClass("black-text");
+    },function(){
+    	$(this).addClass('white');
+    	$(this).removeClass("blue-grey darken-4");
+    	$(this).removeClass("white-text");
+    	$(this).addClass("black-text");
+    });
+    $('#additemselect').change(function(sel){
+    	var data=$('option[value='+$(this).val()+']').text();
+    	var quantity=$('option[value='+$(this).val()+']').data("quantity");
+    	$('#additemname').text(data);
+    	$('#oldstock').text(quantity);
+    });
+    $('#outitemselect').change(function(sel){
+    	var data=$('option[value='+$(this).val()+']').text();
+    	var quantity=$('option[value='+$(this).val()+']').data("quantity");
+    	$('#outitemname').text(data);
+    	$('#oldstock').text(quantity);
+    });
+    $('#resetstock').click(function(ev){
+    	
+    	ev.preventDefault();
+    	$('#newstock').addClass('teal');
+    	$('#newstock').removeClass('red darken-1');
+    	var newStock=0;
+        var oldStock=parseInt($('#oldstock').text())
+        $('input[name=itemQuantity]').attr('value',newStock)
+        $('#newstock').text(newStock);
+        $('#totalstock').text(oldStock-newStock);
+        $('#submitbutton').show();
+    	$('#resetstock').hide();
+    });
+    
+$('#resetaddstock').click(function(ev){
+    	ev.preventDefault();
+    	var newStock=0;
+        var oldStock=parseInt($('#oldstock').text())
+        $('input[name=itemQuantity]').attr('value',newStock)
+        $('#newstock').text(newStock);
+        $('#totalstock').text(oldStock+newStock);
     });
     $('#floorlist').change(function(){
     	var endval = $(this).val();
@@ -87,7 +133,34 @@ $(document).ready(function(){
 		    } 
 		});
     });
-    
+    $('.pagebutton').click(function(){
+    	console.log($(this).data("offset"));
+    	console.log($(this).data("uid"));
+    	console.log($(this).data("limit"));
+    });
+    $("#searchresult").on('click','.pagebutton',function(){
+    	var endval = $('#floorlist').val();
+        var pageURL = $(location). attr("href");
+        var endUrl=pageURL+"/floor/"+endval+"?uniqueId="+$(this).data("uid")+"&offset="+$(this).data("offset")+"&limit="+$(this).data("limit");
+        console.log(endUrl);
+        loadResults(endUrl);
+    });
+    $("#searchresult").on('click','.arrow',function(){
+    	if(!$(this).hasClass("disabled")){
+    		var endval = $('#floorlist').val();
+            var pageURL = $(location). attr("href");
+            var element;
+            if($(this).hasClass("left")){
+    			element=$('.active.pagebutton').prev();
+    		}
+    		if($(this).hasClass("right")){
+    			element=$('.active.pagebutton').next();
+    		}
+    		var endUrl=pageURL+"/floor/"+endval+"?uniqueId="+element.data("uid")+"&offset="+element.data("offset")+"&limit="+element.data("limit");
+            console.log(endUrl);
+            loadResults(endUrl);
+    	}
+    });
 });
 function allowDrop(ev) {
     ev.preventDefault();
@@ -97,21 +170,48 @@ function drag(ev) {
     ev.dataTransfer.setData("text", ev.target.firstChild.innerHTML);
 }
 
-function drop(ev) {
+function dropadd(ev) {
     ev.preventDefault();
     var data = ev.dataTransfer.getData("text");
     console.log(data)
-    var q=parseInt($('#quantity').text())+parseInt(data);
+    var q=parseInt($('#newstock').text())+parseInt(data);
     $('input[name=itemQuantity]').attr('value',q)
-    $('#quantity').text(q);
+    $('#newstock').text(q);
+    $('#totalstock').text(q+parseInt($('#oldstock').text()));
+}
+function dropout(ev) {
+    ev.preventDefault();
+    var data = ev.dataTransfer.getData("text");
+    //console.log(data)
+    var newStock=parseInt($('#newstock').text())+parseInt(data);
+    var oldStock=parseInt($('#oldstock').text())
+    $('input[name=itemQuantity]').attr('value',newStock)
+    if(oldStock<newStock){
+    	$('#newstock').removeClass('teal');
+    	$('#newstock').addClass('red darken-1');
+    	$('#submitbutton').hide();
+    	$('#resetstock').show();
+    }else{
+    	$('#newstock').addClass('teal');
+    	$('#newstock').removeClass('red darken-1');
+    	$('#submitbutton').show();
+    	$('#resetstock').hide();
+    }
+    $('#newstock').text(newStock);
+    $('#totalstock').text(oldStock-newStock);
 }
 function loadResults(Url){
+	console.log(Url)
 	$.ajax({
    	 url:Url,
    	 success: function(result){
-   		 console.log(result);
    		 $("#searchresult").show();
-   	        $("#searchresult").find("tbody").html(result);
-   	        }
+   	        $("#searchresult").html(result);
+   	        },
+	 error : function (xhr, ajaxOptions, thrownError){  
+	        console.log(xhr.status);          
+	        console.log(thrownError);
+	        return false;
+	    }
     });
 }

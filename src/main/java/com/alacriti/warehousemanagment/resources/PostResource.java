@@ -55,7 +55,6 @@ public class PostResource {
 	@POST
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	public Response gLoginService(@FormParam("tokenId") String tokenId){
-		LoggerObject.infoLog(tokenId);
 		Response response=loginDelegate.gValidate(tokenId);
 		if(response.getStatus()==Response.Status.OK.getStatusCode()){
 			HttpSession session=httpServletRequest.getSession(true);

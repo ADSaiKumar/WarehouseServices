@@ -14,12 +14,12 @@
 		<script src="https://apis.google.com/js/platform.js" async defer></script>
 		<script type="text/javascript">
 		function onSignIn(googleUser) {
-			  var profile = googleUser.getBasicProfile();
+			var profile = googleUser.getBasicProfile();
 			  var tokenId = googleUser.getAuthResponse().id_token;
 			  $('#tokenId').attr('value',tokenId);
-			  console.log($('#tokenId').attr('value'));
-			  console.log($('#googleform').attr('action'))
-			  $('#googleform').submit();
+			  $('.g-signin2').click(function(){
+				  $('#googleform').submit();
+				  });
 			}
 		</script>
 	</head>
@@ -45,7 +45,7 @@
 					    <li>
 					      <section class="collapsible-header active"><i class="material-icons">input</i>Login</section>
 					      <section class="collapsible-body">
-					    		<form method="POST" action="manager/post/login">
+					    		<form method="POST" action="manager/post/login" >
 					    			<section class="row">
 					    			<div class="input-field col s10 offset-s1">
 					    					<i class="material-icons prefix">account_circle</i>
@@ -62,7 +62,7 @@
 					    		</section>
 				    			<section class="row">
 				    				<section class="col s10 offset-s1">
-				    					<button class="white btn waves-effect waves-light" type="submit" name="action" style="color:black;">Submit
+				    					<button class="white btn waves-effect waves-light black-text" type="submit" name="action" id="submitbutton">Submit
 										    <i class="material-icons right" style="color:black;">send</i>
 										  </button>
 				    				</section>

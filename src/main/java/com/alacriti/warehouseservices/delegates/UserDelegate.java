@@ -5,9 +5,6 @@ import java.security.GeneralSecurityException;
 import java.sql.Connection;
 import java.util.Arrays;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 
 import com.alacriti.warehouseservices.bo.UserBo;
@@ -16,8 +13,8 @@ import com.alacriti.warehouseservices.dao.impl.DataBaseAgent;
 import com.alacriti.warehouseservices.vo.LoggerObject;
 import com.alacriti.warehouseservices.vo.UserVo;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
@@ -42,6 +39,7 @@ public class UserDelegate {
 		return newUser;
 	}
 	public Response gValidate(String tokenId) {
+		
 		GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(TRANSPORT,JSON_FACTORY)
 	    .setAudience(Arrays.asList(CLIENT_ID))
 	   .setIssuer("accounts.google.com")

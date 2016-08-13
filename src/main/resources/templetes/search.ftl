@@ -1,20 +1,25 @@
 <section id="search" class="col s12">
-	<section class="row">
-		<section class="col s6">
-			<section class="input-field col s12">
-			    <p>
+	<section class="row no-bottom">
+		<section class="col s12 center-text">
+			<h5>Select Criterea</h5>
+		</section>
+	</section>
+	<section class="row no-bottom">
+		<section class="col s5 offset-s5">
+			<section class="input-field col s12 no-top">
+			    <p class="inline">
 			      <input name="searchby" type="radio" id="item" />
-			      <label for="item">Item</label>
+			      <label for="item" class="black-text">Item</label>
 			    </p>
-			    <p>
+			    <p class="inline">
 			      <input name="searchby" type="radio" id="floor" />
-			      <label for="floor">Floor</label>
+			      <label for="floor" class="black-text">Floor</label>
 			    </p>
 			 </section>
 		</section>
-		<section class="col s6">
-			<section class="row"></section>
-			<section class="row"></section>
+	</section>
+	<section class="row">
+		<section class="col s5 offset-s4">
 			<section class="input-field col s12" id="floorselect">
 			    <select id="floorlist">
 			      <option value="" disabled selected>Choose your option</option>
@@ -35,18 +40,8 @@
 		    </datalist>
 		</section>
 	</section>
-	<table class="bordered striped centered" id="searchresult">
-        <thead>
-          <tr>
-              <th data-field="id">Name</th>
-              <th data-field="name">place</th>
-              <th data-field="price">Stock</th>
-              <th data-field="price">Storage</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          
-        </tbody>
-    </table>
+	<section class="row">
+		<section class="col s12" id="searchresult">
+		</section>
+	</section>
 </section>

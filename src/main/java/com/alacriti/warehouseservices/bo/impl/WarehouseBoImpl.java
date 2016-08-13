@@ -1,12 +1,7 @@
 package com.alacriti.warehouseservices.bo.impl;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -15,9 +10,12 @@ import com.alacriti.warehouseservices.bo.WarehouseBo;
 import com.alacriti.warehouseservices.dao.WarehouseDao;
 import com.alacriti.warehouseservices.dao.impl.DataBaseAgent;
 import com.alacriti.warehouseservices.dao.impl.WarehouseDaoImpl;
+import com.alacriti.warehouseservices.utilities.ExtraRemovalException;
+import com.alacriti.warehouseservices.vo.CheckOutVo;
 import com.alacriti.warehouseservices.vo.FloorVo;
 import com.alacriti.warehouseservices.vo.ItemVo;
 import com.alacriti.warehouseservices.vo.LoggerObject;
+import com.alacriti.warehouseservices.vo.PageVo;
 import com.alacriti.warehouseservices.vo.PlaceholderVo;
 
 public class WarehouseBoImpl implements WarehouseBo{
@@ -32,19 +30,37 @@ public class WarehouseBoImpl implements WarehouseBo{
 	}
 	public List<FloorVo> getDetails() {
 		List<FloorVo> warehouse = warehouseDao.getDetails(connection);
-	
 		return warehouse;
 	}
 
-	public FloorVo getDetails(int floorId) {
+	public PageVo getDetails(int floorId) {
 		FloorVo floor=new FloorVo();
 		floor.setFloorId(floorId);
 		List<PlaceholderVo> placeholders=warehouseDao.getDetails(connection,floorId);
+		PageVo page=paginateResult(placeholders);
 		floor.setPlaceholders(placeholders);
 	
-		return floor;
+		return page;
 	}
 
+	private PageVo paginateResult(List<PlaceholderVo> placeholders) {
+		int uniqueId=warehouseDao.getUniquePageId(connection);
+		int resultSize=placeholders.size();
+		PageVo page=new PageVo();
+		int limit=4;
+		page.setLimit(limit);
+		page.setUniqueId(uniqueId+1);
+		int i=warehouseDao.loadPaginationTable(connection,page,placeholders);
+		page.setOffset(0);
+		page.setPageNo(1);
+		int totalpages=0;
+		LoggerObject.infoLog(resultSize);
+		page.setTotalPages(totalpages);
+		if(i>0){
+			page=warehouseDao.loadPage(connection,page);
+		}
+		return page;
+	}
 	public PlaceholderVo addStock(ItemVo item) {
 		PlaceholderVo placeholder=itemBo.getItem(item.getItemId());
 		PlaceholderVo newPlaceholder=new PlaceholderVo();
@@ -80,7 +96,7 @@ public class WarehouseBoImpl implements WarehouseBo{
 	private PlaceholderVo getAvailability() {
 		return warehouseDao.getAvailability(connection);
 	}
-	public PlaceholderVo checkOutItem(ItemVo item) {
+	public PlaceholderVo checkOutItem(ItemVo item) throws ExtraRemovalException {
 		PlaceholderVo placeholder=itemBo.getItem(item.getItemId());
 		PlaceholderVo placeholde2=new PlaceholderVo();
 		if(placeholder!=null){
@@ -115,13 +131,45 @@ public class WarehouseBoImpl implements WarehouseBo{
 				}
 			placeholde2= itemBo.getItem(item.getItemId());
 			}else{
-				//return Extra Exception
+				throw new ExtraRemovalException();
 			}
+			item.setQuantity(checkOutStock);
+			itemBo.updateStockData(item);
 		}else{
-			//return Item Not Available Exception
+			throw new ExtraRemovalException("Item Is Not Available");
 		}
 		
 		return placeholder;
+	}
+	public List<ItemVo> getStorageDetails() {
+		List<ItemVo> items=warehouseDao.getStorageDetails(connection);
+		return items;
+	}
+	public PageVo getPage(PageVo page) {
+		page=warehouseDao.loadPage(connection, page);
+		return page;
+	}
+	public List<CheckOutVo> getCheckOutDetails() {
+		List<CheckOutVo> checkouts=warehouseDao.getCheckOutDetails(connection);
+		PageVo page=paginateCheckOuts(checkouts);
+		return null;
+	}
+	private PageVo paginateCheckOuts(List<CheckOutVo> checkouts) {
+		int uniqueId=warehouseDao.getTmpUniquePageId(connection);
+		int resultSize=checkouts.size();
+		PageVo page=new PageVo();
+		int limit=10;
+		page.setLimit(limit);
+		page.setUniqueId(uniqueId+1);
+		int i=warehouseDao.loadTmpCheckOuts(connection,page,checkouts);
+		page.setOffset(0);
+		page.setPageNo(1);
+		int totalpages=0;
+		page.setTotalPages(totalpages);
+		if(i>0){
+			page=warehouseDao.loadPageCheckOuts(connection,page);
+		}
+		return null;
 	}
 
 }

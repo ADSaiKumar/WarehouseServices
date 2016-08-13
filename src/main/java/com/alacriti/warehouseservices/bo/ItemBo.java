@@ -22,4 +22,6 @@ public interface ItemBo {
 
 	public ItemVo removeStock(ItemVo item);
 
+	public void updateStockData(ItemVo item);
+
 }

@@ -68,12 +68,12 @@ public class ItemDaoImpl implements ItemDao {
 	}
 
 	public List<ItemVo> enlisItem(Connection connection) {
-		String query="select item_id,item_name from warehouse_item_tbl";
+		String query="select a.item_id,item_name,(stock+storage) as quantity from warehouse_item_tbl a left outer join warehouse_stock_tbl b on a.item_id=b.item_id";
 		ResultSet resultSet=DataBaseAgent.getData(connection, query);
 		List<ItemVo> listItems=new ArrayList<ItemVo>();
 		try {
 			while(resultSet.next()){
-				listItems.add(new ItemVo(resultSet.getInt("item_id"),resultSet.getString("item_name"),0));
+				listItems.add(new ItemVo(resultSet.getInt("item_id"),resultSet.getString("item_name"),resultSet.getInt("quantity")));
 			}
 		} catch (SQLException e) {
 			LoggerObject.errorLog(this.getClass());
@@ -123,5 +123,16 @@ public class ItemDaoImpl implements ItemDao {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	public void checkStorageOnly(Connection connection, ItemVo item) {
+		StringBuilder queryBuilder=new StringBuilder();
+		queryBuilder.append("insert into warehouse_checkout_tbl(checkout_date,item_id,quantity) values(now(),")
+			.append(item.getItemId())
+			.append(" , ")
+			.append(item.getQuantity())
+			.append(")");
+		LoggerObject.infoLog(queryBuilder.toString());
+		int i=DataBaseAgent.updateData(connection, queryBuilder.toString().trim());
 	}
 }

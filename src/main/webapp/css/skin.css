@@ -5,7 +5,7 @@
 html {
  
 }
-h1,h3,h5{
+h1,h3,h5,h6{
 	font-family: Raleway;
 }
 h3{
@@ -38,14 +38,18 @@ p{
 }.nav-tab{
 	color:#263238;
 	text-align:center;
+	transition: 0.2s;
 }
 .nav-tab:hover{
-	border-bottom:2px solid #263238;
+	background: #263238;
+	color:white;
+	 box-shadow: 0 27px 24px 0 rgba(0, 0, 0, 0.2), 0 40px 77px 0 rgba(0, 0, 0, 0.22);
+	transition: 0.5s;
 }
 .active-page{
 	background: #263238;
 	color:white;
-	box-shadow:0px 2px 4px #40c4ff,2px 0px 4px #40c4ff,-2px 0px 4px #40c4ff;
+	box-shadow: 0 27px 24px 0 rgba(0, 0, 0, 0.2), 0 40px 77px 0 rgba(0, 0, 0, 0.22);
 }
 #searchresult{
 	display:none;
@@ -58,4 +62,51 @@ p{
 }
 #register-form .row{
 	margin-bottom:0px !important;
+}
+.no-bottom{
+	margin-bottom:0px !important;
+}
+.no-top{
+	margin-top:0px !important;
+}
+.top-space{
+	padding-top:1rem !important;
+}
+.username{
+	width:200px;
+	white-space: nowrap; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding:0rem !important;
+    cursor:pointer;
+}
+.placeholder-layout{
+	border:1px solid #263238;
+	border-radius: 2px;
+	margin: 0px;
+	margin-right: 5px;
+	padding: 0px;
+	display: inline-block;
+}
+.floor-layout{
+	margin-bottom: 5px;
+}
+.placeholder-layout span{
+	white-space: nowrap; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+	margin: 0px;
+	padding: 0px;
+	display: block;
+	text-align: center;
+	background: #263238;
+	color:white;
+	box-shadow: 0 27px 24px 0 rgba(0, 0, 0, 0.2), 0 40px 77px 0 rgba(0, 0, 0, 0.22);
+}
+.hidden{
+	display:none !important;
+}
+
+.btn:hover{
+	 box-shadow: 0 27px 24px 0 rgba(0, 0, 0, 0.2), 0 40px 77px 0 rgba(0, 0, 0, 0.22);
 }

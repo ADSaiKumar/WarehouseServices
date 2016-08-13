@@ -18,6 +18,7 @@ public class LoginDelegate {
 		byte[] encodedBytes = Base64.encodeBase64(authouraizatioString.getBytes());
 		String encodedString=new String(encodedBytes);
 		Client client=ClientBuilder.newClient();
+		client.register(new ServiceRequestFilter());
 		Response response=client.target("http://localhost:8080/WarehouseServices/services/users")
 				.request()
 				.header("Authorization", "Basic "+encodedString)
@@ -27,6 +28,7 @@ public class LoginDelegate {
 
 	public Response gValidate(String tokenId) {
 		Client client=ClientBuilder.newClient();
+		client.register(new ServiceRequestFilter());
 		String data="tokenId="+tokenId;
 		Response response=client.target("http://localhost:8080/WarehouseServices/services/users/google")
 				.request()
@@ -46,6 +48,7 @@ public class LoginDelegate {
 
 	public Response register(UserVo user) {
 		Client client=ClientBuilder.newClient();
+		client.register(new ServiceRequestFilter());
 		Response response=client.target("http://localhost:8080/WarehouseServices/services/users")
 				.request()
 				.post(Entity.xml(user));
